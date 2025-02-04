@@ -1,4 +1,5 @@
 ﻿Imports System.IO
+Imports Microsoft.Win32
 
 Public Class Form1
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -180,4 +181,22 @@ Public Class Form1
         Catch ex As Exception
         End Try
     End Sub
+
+    Public Function GetFileOpenList(fileType As String)
+        Dim fileOpenOptions As New List(Of String)
+        Dim registryKeyPath As String = "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\" & fileType & "\OpenWithList"
+
+        Dim key As RegistryKey = Registry.CurrentUser.OpenSubKey(registryKeyPath)
+        If key IsNot Nothing Then
+            Console.WriteLine("Applications associated with " & fileType & ":")
+            For Each valueName As String In key.GetValueNames()
+                Console.WriteLine(valueName & " - " & key.GetValue(valueName))
+                fileOpenOptions.Add(key.GetValue(valueName))
+            Next
+        Else
+            Console.WriteLine("No associations found for " & fileType)
+        End If
+
+        Return fileOpenOptions
+    End Function
 End Class
